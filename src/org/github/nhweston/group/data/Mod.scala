@@ -1,4 +1,4 @@
-package com.github.nhweston.grp.data
+package com.github.nhweston.group.data
 
 class Mod[M <: Int] private (val value: Int, val modulus: M):
 

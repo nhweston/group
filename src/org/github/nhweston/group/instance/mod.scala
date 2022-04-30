@@ -1,7 +1,7 @@
-package com.github.nhweston.grp.instance
+package com.github.nhweston.group.instance
 
-import com.github.nhweston.grp.typeclass.Group
-import com.github.nhweston.grp.data.Mod
+import com.github.nhweston.group.typeclass.Group
+import com.github.nhweston.group.data.Mod
 
 given modInstances[M <: Int](using m: ValueOf[M]): Group[Mod[M]] =
   new Group[Mod[M]]:

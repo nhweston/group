@@ -15,7 +15,7 @@ lazy val dependencies =
 lazy val root =
   (project in file("."))
     .settings(
-      name := "scala-pg",
+      name := "group",
       libraryDependencies ++= dependencies,
       Compile / scalaSource := baseDirectory.value / "src",
     )

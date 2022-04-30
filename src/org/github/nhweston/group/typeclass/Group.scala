@@ -1,4 +1,4 @@
-package com.github.nhweston.grp.typeclass
+package com.github.nhweston.group.typeclass
 
 import scala.annotation.tailrec
 
