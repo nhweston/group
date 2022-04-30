@@ -1,29 +1,41 @@
 package com.github.nhweston.group.instance
 
-import com.github.nhweston.group.typeclass.Group
+import com.github.nhweston.group.typeclass.*
 
-given emptyTupleInstances: Group[EmptyTuple] with
+given emptyTupleGroup: Group[EmptyTuple] with
 
-  override def plus(x: EmptyTuple, y: EmptyTuple) = EmptyTuple
+  def plus(x: EmptyTuple, y: EmptyTuple) = EmptyTuple
 
-  override def negate(x: EmptyTuple) = EmptyTuple
+  def negate(x: EmptyTuple) = EmptyTuple
 
-  override def zero = EmptyTuple
+  def zero = EmptyTuple
 
-given tupleInstances[H, T <: Tuple](using groupH: Group[H], groupT: Group[T]): Group[H *: T] with
+given emptyTupleFinite: Finite[EmptyTuple] with
 
-  override def plus(x: H *: T, y: H *: T) =
+  lazy val values = Iterable(EmptyTuple)
+
+given tupleGroup[H, T <: Tuple](using groupH: Group[H], groupT: Group[T]): Group[H *: T] with
+
+  def plus(x: H *: T, y: H *: T) =
     val xh *: xt = x
     val yh *: yt = y
     val h = groupH.plus(xh, yh)
     val t = groupT.plus(xt, yt)
     h *: t
 
-  override def negate(x: H *: T) =
+  def negate(x: H *: T) =
     val xh *: xt = x
     val h = groupH.negate(xh)
     val t = groupT.negate(xt)
     h *: t
 
-  override def zero =
+  def zero =
     groupH.zero *: groupT.zero
+
+given tupleFinite[H, T <: Tuple](using finiteH: Finite[H], finiteT: Finite[T]): Finite[H *: T] with
+
+  override lazy val values =
+    for {
+      h <- finiteH.values
+      t <- finiteT.values
+    } yield h *: t
