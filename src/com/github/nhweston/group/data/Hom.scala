@@ -10,6 +10,23 @@ class Hom[A, B] private[group] (phi: A => B) extends (A => B):
   override def apply(x: A): B =
     phi(x)
 
+  /** Checks whether this is an isomorphism. */
+  def checkIso
+    (using
+      groupA: Group[A],
+      groupB: Group[B],
+      finiteA: Finite[A],
+      finiteB: Finite[B])
+  : Option[Iso[A, B]] =
+    val phiInv =
+      finiteA
+        .values
+        .iterator
+        .map(x => phi(x) -> x)
+        .toMap
+    if phiInv.size != finiteB.values.size then None
+    else Some(new Iso(phi, phiInv))
+
 /** Asserts that `phi` is a homomorphism. This operation is unsafe. */
 def assertHom[A, B](phi: A => B): Hom[A, B] =
   new Hom(phi)
