@@ -12,10 +12,16 @@ trait Group[A]:
   def plus(x: A, y: A): A
 
   /** Returns the negation of `x`. */
-  def negate(x: A): A
+  def negate(x: A): A =
+    @tailrec
+    def aux(prev: A, next: A): A =
+      if next == zero then prev
+      else aux(next, plus(next, x))
+    aux(zero, x)
 
   /** The identity element. */
-  def zero: A
+  lazy val zero: A =
+    values.find(x => values.forall(y => plus(x, y) == y)).get
 
   /** Adds the negation of `y` to `x`. */
   def minus(x: A, y: A): A =
@@ -48,8 +54,7 @@ trait Group[A]:
 
   /**
    * A minimal set of generators for `A`. It is useful to have this cached as
-   * it is required for many algorithms. Instantiators are encouraged to
-   * override this if a more efficient implementation is possible.
+   * it is required for many algorithms.
    */
   lazy val gtors: Set[A] =
     @tailrec
@@ -58,7 +63,7 @@ trait Group[A]:
       gted: Set[A],
       ungted: Set[A],
     ): Set[A] =
-      ungted.headOption match
+      ungted.maxByOption(abs) match
         case Some(gtor) =>
           val gtorsNext = gtors + gtor
           @tailrec

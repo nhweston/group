@@ -1,7 +1,7 @@
 package com.github.nhweston.group.instance
 
-import com.github.nhweston.group.typeclass.*
 import com.github.nhweston.group.data.Mod
+import com.github.nhweston.group.typeclass.Group
 
 given modGroup[M <: Int](using m: ValueOf[M]): Group[Mod[M]] with
 
@@ -11,8 +11,12 @@ given modGroup[M <: Int](using m: ValueOf[M]): Group[Mod[M]] with
   def plus(x: Mod[M], y: Mod[M]) =
     Mod(x.value + y.value)
 
-  def negate(x: Mod[M]) =
+  override def negate(x: Mod[M]) =
     Mod(-x.value)
 
-  def zero =
+  override lazy val zero =
     Mod(0)
+
+  override lazy val gtors =
+    if m.value > 1 then Set(Mod(1))
+    else Set.empty

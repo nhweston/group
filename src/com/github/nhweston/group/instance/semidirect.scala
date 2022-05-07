@@ -39,5 +39,5 @@ def mkSemidirectProduct[AB <: Product, A, B]
     override def negate(x: AB) =
       ???
 
-    override def zero =
+    override lazy val zero =
       fromTuple((groupA.zero, groupB.zero))

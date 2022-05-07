@@ -2,20 +2,21 @@ package com.github.nhweston.group.data
 
 import scala.annotation.tailrec
 
-import com.github.nhweston.group.typeclass.*
+import com.github.nhweston.group.typeclass.Group
 
 /** Represents a homomorphism between `A` and `B`. */
-class Hom[A, B] private[group] (phi: A => B) extends (A => B):
+class Hom[A, B] private[data]
+  (phi: A => B)
+  (using
+    val groupA: Group[A],
+    val groupB: Group[B])
+extends (A => B):
 
   override def apply(x: A): B =
     phi(x)
 
   /** Checks whether this is an isomorphism. */
-  def checkIso
-    (using
-      groupA: Group[A],
-      groupB: Group[B])
-  : Option[Iso[A, B]] =
+  def checkIso: Option[Iso[A, B]] =
     val phiInv =
       groupA
         .values
@@ -25,9 +26,47 @@ class Hom[A, B] private[group] (phi: A => B) extends (A => B):
     if phiInv.size != groupB.values.size then None
     else Some(new Iso(phi, phiInv))
 
+  override def equals(other: Any): Boolean =
+    other match
+      case other: Hom[?, ?] if this.groupA.zero == other.groupA.zero =>
+        groupA.gtors.forall(x => this(x) == other.asInstanceOf[Hom[A, ?]](x))
+      case _ =>
+        false
+  
+  override lazy val hashCode: Int =
+    groupA.gtors.map(x => x -> this(x)).hashCode
+
+/** Represents an isomorphism between `A` and `B`. */
+class Iso[A, B] private[group]
+  (phi: A => B, phiInv: B => A)
+  (using
+    groupA: Group[A],
+    groupB: Group[B])
+extends Hom[A, B](phi):
+
+  def reverse: Iso[B, A] = new Iso(phiInv, phi)
+
+/** Represents an automorphism of `A`. */
+type Aut[A] = Iso[A, A]
+
 /** Asserts that `phi` is a homomorphism. This operation is unsafe. */
-def assertHom[A, B](phi: A => B): Hom[A, B] =
+def assertHom[A, B]
+  (phi: A => B)
+  (using
+    groupA: Group[A],
+    groupB: Group[B])
+: Hom[A, B] =
   new Hom(phi)
+
+/**
+ * Asserts that `phi` is a homomorphism with `phiInv` its inverse. This
+ * operation is unsafe.
+ */
+def assertIso[A, B]
+  (phi: A => B, phiInv: B => A)
+  (using groupA: Group[A], groupB: Group[B])
+: Iso[A, B] =
+  new Iso(phi, phiInv)
 
 /** Checks whether `phi` is a homomorphism. */
 def checkHom[A, B]

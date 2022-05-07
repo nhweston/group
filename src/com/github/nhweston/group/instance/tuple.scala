@@ -8,13 +8,13 @@ given emptyTupleGroup: Group[EmptyTuple] with
 
   def plus(x: EmptyTuple, y: EmptyTuple) = EmptyTuple
 
-  def negate(x: EmptyTuple) = EmptyTuple
+  override def negate(x: EmptyTuple) = EmptyTuple
 
-  def zero = EmptyTuple
+  override lazy val zero = EmptyTuple
 
 given tupleGroup[H, T <: Tuple](using groupH: Group[H], groupT: Group[T]): Group[H *: T] with
 
-  override lazy val values =
+  lazy val values =
     for {
       h <- groupH.values
       t <- groupT.values
@@ -27,11 +27,16 @@ given tupleGroup[H, T <: Tuple](using groupH: Group[H], groupT: Group[T]): Group
     val t = groupT.plus(xt, yt)
     h *: t
 
-  def negate(x: H *: T) =
+  override def negate(x: H *: T) =
     val xh *: xt = x
     val h = groupH.negate(xh)
     val t = groupT.negate(xt)
     h *: t
 
-  def zero =
+  override lazy val zero =
     groupH.zero *: groupT.zero
+
+  override lazy val gtors =
+    val fromH = groupH.gtors.map(h => h *: groupT.zero)
+    val fromT = groupT.gtors.map(t => groupH.zero *: t)
+    fromH ++ fromT
