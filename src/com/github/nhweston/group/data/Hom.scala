@@ -14,17 +14,15 @@ class Hom[A, B] private[group] (phi: A => B) extends (A => B):
   def checkIso
     (using
       groupA: Group[A],
-      groupB: Group[B],
-      finiteA: Finite[A],
-      finiteB: Finite[B])
+      groupB: Group[B])
   : Option[Iso[A, B]] =
     val phiInv =
-      finiteA
+      groupA
         .values
         .iterator
         .map(x => phi(x) -> x)
         .toMap
-    if phiInv.size != finiteB.values.size then None
+    if phiInv.size != groupB.values.size then None
     else Some(new Iso(phi, phiInv))
 
 /** Asserts that `phi` is a homomorphism. This operation is unsafe. */
@@ -36,8 +34,7 @@ def checkHom[A, B]
   (phi: A => B)
   (using
     groupA: Group[A],
-    groupB: Group[B],
-    finiteA: Finite[A])
+    groupB: Group[B])
 : Option[Hom[A, B]] =
   def test(x: A, y: A): Boolean =
     val inner = groupB.plus(phi(x), phi(y))
@@ -47,19 +44,18 @@ def checkHom[A, B]
   def aux(xs: Seq[A]): Option[Hom[A, B]] =
     xs match
       case x +: tl =>
-        if finiteA.values.forall(y => test(x, y)) then aux(tl)
+        if groupA.values.forall(y => test(x, y)) then aux(tl)
         else None
       case Seq() =>
         Some(assertHom(phi))
-  aux(finiteA.values.toSeq)
+  aux(groupA.values.toSeq)
 
 /** Generates a homomorphism from a collection of mappings. */
 def generateHom[A, B]
   (gtors: (A, B)*)
   (using
     groupA: Group[A],
-    groupB: Group[B],
-    finiteA: Finite[A])
+    groupB: Group[B])
 : Option[Hom[A, B]] =
   def auxQueue(
     queue: Seq[(A, B)],

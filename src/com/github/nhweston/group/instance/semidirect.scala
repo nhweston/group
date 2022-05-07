@@ -26,6 +26,9 @@ def mkSemidirectProduct[AB <: Product, A, B]
     def toTuple(ab: AB): (A, B) =
       Tuple.fromProductTyped(ab)
 
+    def values =
+      ???
+
     override def plus(x: AB, y: AB) =
       val (xa, xb) = toTuple(x)
       val (ya, yb) = toTuple(y)

@@ -4,17 +4,21 @@ import com.github.nhweston.group.typeclass.*
 
 given emptyTupleGroup: Group[EmptyTuple] with
 
+  lazy val values = Iterable(EmptyTuple)
+
   def plus(x: EmptyTuple, y: EmptyTuple) = EmptyTuple
 
   def negate(x: EmptyTuple) = EmptyTuple
 
   def zero = EmptyTuple
 
-given emptyTupleFinite: Finite[EmptyTuple] with
-
-  lazy val values = Iterable(EmptyTuple)
-
 given tupleGroup[H, T <: Tuple](using groupH: Group[H], groupT: Group[T]): Group[H *: T] with
+
+  override lazy val values =
+    for {
+      h <- groupH.values
+      t <- groupT.values
+    } yield h *: t
 
   def plus(x: H *: T, y: H *: T) =
     val xh *: xt = x
@@ -31,11 +35,3 @@ given tupleGroup[H, T <: Tuple](using groupH: Group[H], groupT: Group[T]): Group
 
   def zero =
     groupH.zero *: groupT.zero
-
-given tupleFinite[H, T <: Tuple](using finiteH: Finite[H], finiteT: Finite[T]): Finite[H *: T] with
-
-  override lazy val values =
-    for {
-      h <- finiteH.values
-      t <- finiteT.values
-    } yield h *: t

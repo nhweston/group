@@ -7,6 +7,3 @@ class Iso[A, B] private[group] (
 ) extends Hom[A, B](phi):
 
   def reverse: Iso[B, A] = new Iso(phiInv, phi)
-
-/** Represents an automorphism of `A`. */
-type Aut[A] = Iso[A, A]
